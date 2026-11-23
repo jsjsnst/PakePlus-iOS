@@ -1,0 +1,1043 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>匣中 · 时间锁加密工具箱</title>
+<link id="tabbit-artifact-favicon" rel="icon" href="https://www.tabbit.com/favicon.ico">
+</head>
+<body><style>
+:root{--primary:#F3A04C;--accent:#E58522;--background:#F4F4F6;--card-bg:#fff;--success:#40B43E;--warning:#EBA400;--destructive:#E65C53;--primary-foreground:#fff;--text-primary:rgba(0,0,0,.8);--text-secondary:rgba(0,0,0,.5);--text-tertiary:rgba(0,0,0,.35);--i3:rgba(0,0,0,.03);--i4:rgba(0,0,0,.04);--i6:rgba(0,0,0,.06);--i8:rgba(0,0,0,.08);--i12:rgba(0,0,0,.12);--i16:rgba(0,0,0,.16);--i20:rgba(0,0,0,.2);--ish:rgba(0,0,0,.08);--hero:#26221E;font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+@media (prefers-color-scheme:dark){:root{--background:#232324;--card-bg:#2E2E2E;--primary-foreground:#000;--text-primary:rgba(255,255,255,.8);--text-secondary:rgba(255,255,255,.5);--text-tertiary:rgba(255,255,255,.35);--i3:rgba(255,255,255,.03);--i4:rgba(255,255,255,.04);--i6:rgba(255,255,255,.06);--i8:rgba(255,255,255,.08);--i12:rgba(255,255,255,.12);--i16:rgba(255,255,255,.16);--i20:rgba(255,255,255,.2);--ish:rgba(0,0,0,.28);--hero:#3A342D}}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+button,input,textarea{font-family:inherit}
+.app{display:flex;justify-content:center;width:100%;color:var(--text-primary)}
+.phone{position:relative;width:344px;max-width:100%;background:var(--background);border:.5px solid var(--i12);border-radius:28px;padding:0 13px 12px;overflow:hidden}
+.phone.full{width:100%;max-width:430px;border:0;border-radius:0;padding:0 13px 10px;min-height:100vh}
+.phone.full .screen{height:auto;min-height:calc(100vh - 92px)}
+.phone.full .island,.phone.full .status{display:none}
+.phone.full .toast{bottom:26px}
+.status{height:32px;display:flex;align-items:center;justify-content:space-between;padding:0 6px;font-size:11px;font-weight:600}
+.island{position:absolute;top:6px;left:50%;transform:translateX(-50%);width:62px;height:18px;border-radius:999px;background:#0E0E0E}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:8px;height:34px;margin-top:2px}
+.brand{display:flex;align-items:center;gap:9px;min-width:0}
+.sealico{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;background:color-mix(in srgb,var(--primary) 20%,transparent);color:var(--accent);border:.5px solid color-mix(in srgb,var(--primary) 30%,transparent);flex:0 0 auto}
+.btitle{font-size:15px;font-weight:600;letter-spacing:1px;line-height:1.1}
+.bsub{font-size:9.5px;color:var(--text-tertiary);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pill{font-size:9px;color:var(--text-secondary);background:var(--i4);border:.5px solid var(--i8);border-radius:999px;padding:3px 8px;white-space:nowrap;flex:0 0 auto;font-family:ui-monospace,Menlo,monospace}
+.pill.warn{color:var(--destructive);border-color:color-mix(in srgb,var(--destructive) 35%,transparent)}
+.screen{height:548px;overflow-y:auto;overflow-x:hidden;scrollbar-width:none;margin-top:10px;padding-bottom:2px;overscroll-behavior:contain}
+.screen::-webkit-scrollbar{display:none}
+.view{display:flex;flex-direction:column;gap:10px}
+.card{background:var(--card-bg);border:.5px solid var(--i8);border-radius:16px;padding:12px}
+.ch{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin-bottom:8px}
+.ct{font-size:12px;font-weight:600}
+.muted{font-size:9.5px;color:var(--text-tertiary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.seg{display:flex;gap:3px;padding:3px;background:var(--i4);border:.5px solid var(--i8);border-radius:999px}
+.seg button{flex:1;height:28px;border:0;border-radius:999px;background:transparent;color:var(--text-secondary);font-size:11.5px;font-weight:500}
+.seg button.on{background:var(--card-bg);color:var(--text-primary);box-shadow:0 1px 2px var(--ish)}
+textarea.tin{display:block;width:100%;height:56px;border:0;outline:none;background:transparent;resize:none;font-size:12px;line-height:1.7;color:var(--text-primary)}
+textarea.tin.small{height:44px;font-family:ui-monospace,Menlo,monospace;font-size:10.5px}
+textarea.tin::placeholder,input::placeholder{color:var(--text-tertiary)}
+.field{width:100%;height:36px;border:.5px solid var(--i8);border-radius:10px;background:var(--i4);padding:0 11px;font-size:12px;color:var(--text-primary);outline:none;appearance:none}
+.field:focus{border-color:color-mix(in srgb,var(--accent) 45%,transparent)}
+.meter{height:5px;border-radius:999px;background:var(--i8);overflow:hidden;margin:8px 0 7px}
+.meter i{display:block;height:100%;width:0;border-radius:999px;transition:width .25s,background .25s}
+.params{display:flex;gap:4px;flex-wrap:wrap}
+.params span{font-size:8.5px;font-family:ui-monospace,Menlo,monospace;color:var(--text-tertiary);background:var(--i4);border-radius:5px;padding:2px 5px}
+.hint{font-size:9.5px;color:var(--text-tertiary);line-height:1.55;margin-top:7px}
+.switchrow{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.swt{font-size:11.5px;font-weight:500}
+.swd{font-size:9.5px;color:var(--text-tertiary);margin-top:2px}
+.sw{width:34px;height:19px;border-radius:999px;background:var(--i16);border:0;padding:0;position:relative;flex:0 0 auto}
+.sw::after{content:"";position:absolute;top:2.5px;left:2.5px;width:14px;height:14px;border-radius:50%;background:#fff;transition:left .2s}
+.sw.on{background:var(--primary)}
+.sw.on::after{left:17px}
+.chips{display:flex;gap:5px;flex-wrap:wrap}
+.cbtn{flex:1 1 auto;height:28px;min-width:0;padding:0 8px;border-radius:999px;border:.5px solid var(--i8);background:var(--i4);color:var(--text-secondary);font-size:10.5px;white-space:nowrap}
+.cbtn[aria-pressed="true"]{background:color-mix(in srgb,var(--accent) 15%,transparent);border-color:color-mix(in srgb,var(--accent) 34%,transparent);color:var(--accent);font-weight:600}
+.primary{width:100%;height:39px;margin-top:11px;border:0;border-radius:10px;background:var(--primary);color:var(--primary-foreground);font-size:12.5px;font-weight:600}
+.primary:disabled{opacity:.55}
+.mono{font-family:ui-monospace,Menlo,monospace;font-size:10px;line-height:1.75;color:var(--text-secondary);word-break:break-all;background:var(--i4);border:.5px solid var(--i8);border-radius:10px;padding:8px 9px;max-height:84px;overflow:auto}
+.mono.tiny{font-size:9.5px;padding:7px 8px;max-height:62px;min-height:26px}
+.actrow{display:flex;gap:6px;margin-top:9px}
+.ghost{flex:1;height:30px;min-width:0;border:.5px solid var(--i8);border-radius:9px;background:var(--i4);color:var(--text-secondary);font-size:10px;padding:0 6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rng{width:100%;accent-color:var(--primary);height:4px}
+.val{font-family:ui-monospace,Menlo,monospace;font-size:11.5px;font-weight:600;color:var(--accent)}
+.pwbig{font-family:ui-monospace,Menlo,monospace;font-size:15px;line-height:1.5;font-weight:600;word-break:break-all;background:var(--i4);border:.5px solid var(--i8);border-radius:10px;padding:10px 11px;min-height:52px}
+.encrow{display:flex;gap:12px;flex-wrap:wrap;margin-top:9px;font-size:9.5px;color:var(--text-tertiary)}
+.encrow b{font-weight:600;color:var(--text-primary);font-family:ui-monospace,Menlo,monospace}
+.alist{margin-top:9px;display:flex;flex-direction:column;gap:5px}
+.arow{display:flex;gap:7px;align-items:flex-start;font-size:10px;line-height:1.5;background:var(--i4);border-radius:8px;padding:6px 8px}
+.arow.ok{background:color-mix(in srgb,var(--success) 10%,transparent);color:var(--success)}
+.arow.bad{background:color-mix(in srgb,var(--destructive) 9%,transparent);color:var(--destructive)}
+.arow.warn{background:color-mix(in srgb,var(--warning) 14%,transparent);color:var(--warning)}
+.ak{flex:0 0 auto;font-weight:600;font-family:ui-monospace,Menlo,monospace;font-size:9px;margin-top:1px}
+.lockzone{text-align:center;padding:18px 10px 10px}
+.lockico{width:46px;height:46px;border-radius:14px;margin:0 auto 11px;display:grid;place-items:center;background:var(--hero);color:var(--primary)}
+.lockt{font-size:14px;font-weight:600}
+.lockd{font-size:10px;color:var(--text-tertiary);line-height:1.6;margin-top:6px}
+.vaultbar{display:flex;align-items:center;justify-content:space-between;padding:0 2px;font-size:11px;color:var(--text-tertiary)}
+.link{background:none;border:0;color:var(--accent);font-size:10.5px;font-weight:500;padding:0}
+.vrow{padding:10px 0;border-bottom:.5px solid var(--i6)}
+.vrow:last-child{border-bottom:0;padding-bottom:2px}
+.vtop{display:flex;align-items:center;gap:7px;margin-bottom:2px}
+.vn{font-size:12px;font-weight:600;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.vb{font-size:8.5px;font-weight:600;padding:1px 6px;border-radius:999px;background:color-mix(in srgb,var(--success) 16%,transparent);color:var(--success);flex:0 0 auto}
+.vu{font-size:9.5px;color:var(--text-tertiary);font-family:ui-monospace,Menlo,monospace}
+.vpw{display:flex;align-items:center;gap:8px;margin-top:6px;background:var(--i4);border-radius:8px;padding:6px 8px}
+.vpw code{flex:1;min-width:0;font-family:ui-monospace,Menlo,monospace;font-size:10.5px;letter-spacing:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.vbtn{border:.5px solid var(--i8);background:var(--card-bg);border-radius:6px;height:21px;padding:0 7px;font-size:9px;color:var(--text-secondary);flex:0 0 auto}
+.err{display:flex;gap:8px;align-items:flex-start;background:color-mix(in srgb,var(--destructive) 10%,transparent);border:.5px solid color-mix(in srgb,var(--destructive) 30%,transparent);color:var(--destructive);border-radius:12px;padding:10px;font-size:10.5px;line-height:1.55}
+.err b{font-weight:600;display:block;margin-bottom:2px;font-size:11px}
+.letter{border:.5px solid var(--i8);border-radius:14px;background:var(--card-bg);padding:12px;animation:rv .26s ease-out}
+@keyframes rv{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+.lt{display:flex;align-items:center;gap:6px;font-size:9px;color:var(--text-tertiary);margin-bottom:8px}
+.lbody{font-size:12.5px;line-height:1.85;white-space:pre-wrap;word-break:break-word}
+.lmeta{display:flex;justify-content:space-between;gap:8px;font-size:9px;color:var(--text-tertiary);border-top:.5px solid var(--i6);margin-top:10px;padding-top:7px}
+.slip{background:var(--i3);border:.5px dashed var(--i16);border-radius:9px;padding:7px 9px;margin-top:7px}
+.slabel{font-size:8.5px;font-weight:600;color:var(--accent);margin-bottom:5px}
+.slip .mono{background:none;border:0;padding:0;font-size:9.5px;max-height:40px}
+.tabs{display:flex;justify-content:space-between;padding:8px 2px 0;margin-top:10px;border-top:.5px solid var(--i8)}
+.tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;background:none;border:0;padding:3px 0;color:var(--text-tertiary);font-size:9.5px;font-weight:500}
+.tab.on{color:var(--accent)}
+.toast{position:absolute;left:50%;bottom:72px;transform:translate(-50%,8px);background:#2C2824;color:#fff;font-size:10.5px;padding:7px 13px;border-radius:999px;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;white-space:nowrap;z-index:9;max-width:280px;overflow:hidden;text-overflow:ellipsis}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+.tstat{font-size:8.5px;font-weight:600;padding:2px 8px;border-radius:999px;background:var(--i6);color:var(--text-secondary);white-space:nowrap;flex:0 0 auto}
+.tstat.ok{background:color-mix(in srgb,var(--success) 14%,transparent);color:var(--success)}
+.tstat.warn{background:color-mix(in srgb,var(--warning) 18%,transparent);color:var(--warning)}
+.tstat.bad{background:color-mix(in srgb,var(--destructive) 12%,transparent);color:var(--destructive)}
+.cd{font-family:ui-monospace,Menlo,monospace;font-size:12.5px;font-weight:600;line-height:1.5;margin:1px 0 3px;color:var(--text-primary)}
+.cdsub{font-size:9.5px;color:var(--text-tertiary);line-height:1.55}
+.tlx{margin-top:9px;display:flex;flex-direction:column;gap:6px;border-top:.5px solid var(--i6);padding-top:8px}
+.tlr{display:flex;align-items:baseline;gap:8px;font-size:9.5px;line-height:1.45}
+.tlr i{width:6px;height:6px;border-radius:50%;background:var(--i20);flex:0 0 auto}
+.tlr i.on{background:var(--accent)}
+.tlr i.now{background:var(--success);box-shadow:0 0 0 3px color-mix(in srgb,var(--success) 18%,transparent)}
+.tlr b{font-weight:600;color:var(--text-secondary);flex:0 0 46px}
+.tlr span{font-family:ui-monospace,Menlo,monospace;font-size:9.5px;color:var(--text-primary)}
+.tlp{font-size:9.5px;line-height:1.6;margin-top:9px;padding:7px 9px;border-radius:9px;background:var(--i4);border-left:2px solid var(--accent);color:var(--text-secondary);word-break:break-word}
+.tlp.warn{border-left-color:var(--destructive);background:color-mix(in srgb,var(--destructive) 8%,transparent);color:var(--destructive)}
+.io{display:block;width:100%;height:46px;border:.5px solid var(--i8);border-radius:10px;background:var(--i4);padding:7px 9px;font-size:11px;line-height:1.6;color:var(--text-primary);outline:none;resize:none;font-family:inherit}
+.io+.io{margin-top:6px}
+.io.ioMono{font-family:ui-monospace,Menlo,monospace;font-size:10px}
+.io:focus{border-color:color-mix(in srgb,var(--accent) 45%,transparent)}
+#encSeg button{font-size:10px;padding:0 1px}
+#fpOut{white-space:pre-wrap}
+.vbtn.d{color:var(--destructive)}
+</style>
+<div class="app">
+<div class="phone" id="phone">
+<div class="island"></div>
+<div class="status"><span>20:35</span><span style="opacity:.8">▮▮▮ ⌁</span></div>
+<div class="topbar">
+<div class="brand">
+<div class="sealico"><svg fill="none" height="16" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" viewbox="0 0 20 20" width="16"><rect height="8" rx="2.2" width="12" x="4" y="9"></rect><path d="M6.8 9V6.6a3.2 3.2 0 0 1 6.4 0V9"></path><path d="M10 12.2v1.6"></path></svg></div>
+<div style="min-width:0"><div class="btitle">匣中</div><div class="bsub">真加密 · 时间锁 · 密码本</div></div>
+</div>
+<span class="pill" id="algPill">AES-256-GCM</span>
+</div>
+<div class="screen" id="screen">
+<div class="view" id="v-seal">
+<div class="seg" id="sealSeg"><button class="on" data-p="wrap">封装</button><button data-p="unwrap">解封</button></div>
+<div id="paneWrap" style="display:flex;flex-direction:column;gap:10px">
+<div class="card">
+<div class="ch"><span class="ct">信文</span><span class="muted" id="wc">0 字符</span></div>
+<textarea class="tin" id="plain" maxlength="2000" placeholder="要封进匣子的内容"></textarea>
+</div>
+<div class="card">
+<div class="ch"><span class="ct">口令</span><span class="muted" id="pwBits">未输入</span></div>
+<input autocomplete="off" class="field" id="pw1" placeholder="至少 12 位，能随口背出更好" spellcheck="false" type="password"/>
+<div class="meter"><i id="pwBar"></i></div>
+<div class="params"><span>PBKDF2-SHA256</span><span>310k 迭代</span><span>16B 盐</span><span>12B IV</span></div>
+</div>
+<div class="card">
+<div class="ch"><span class="ct">时间锁</span><span class="tstat" id="lockSummary">未启用</span></div>
+<div class="switchrow">
+<div><div class="swt">启用时间锁</div><div class="swd">时间窗写进密文头，受 GCM 认证保护</div></div>
+<button aria-checked="false" aria-label="启用时间锁" class="sw" id="ttlSw" role="switch"></button>
+</div>
+<div hidden="" id="lockCfg">
+<div class="ch" style="margin:13px 0 0"><span class="ct" style="font-size:11px">最早可解封</span><span class="muted" id="nbHint">1 天后</span></div>
+<div class="chips" id="nbChips" style="margin-top:7px">
+<button class="cbtn" data-nb="0">立刻</button>
+<button class="cbtn" data-nb="3600000">1 小时</button>
+<button aria-pressed="true" class="cbtn" data-nb="86400000">1 天</button>
+<button class="cbtn" data-nb="604800000">7 天</button>
+<button class="cbtn" data-nb="abs">指定时刻</button>
+</div>
+<input class="field" hidden="" id="nbAbs" style="margin-top:7px" type="datetime-local"/>
+<div class="ch" style="margin:14px 0 0"><span class="ct" style="font-size:11px">最晚可解封</span><span class="muted" id="naHint">不设</span></div>
+<div class="chips" id="naChips" style="margin-top:7px">
+<button aria-pressed="true" class="cbtn" data-na="0">不设</button>
+<button class="cbtn" data-na="86400000">1 天</button>
+<button class="cbtn" data-na="604800000">7 天</button>
+<button class="cbtn" data-na="2592000000">30 天</button>
+<button class="cbtn" data-na="abs">指定时刻</button>
+</div>
+<input class="field" hidden="" id="naAbs" style="margin-top:7px" type="datetime-local"/>
+<div class="tlp" id="lockPreview">—</div>
+<div class="hint">时刻以绝对时间写入密文，换手机、换时区都一致。到期作废由客户端强制；要做到连持有密钥的人也无法解开，只能删掉密文本身。</div>
+</div>
+<button class="primary" id="wrapBtn">AES-256-GCM 封装</button>
+</div>
+<div class="card" hidden="" id="outCard">
+<div class="ch"><span class="ct">密文</span><span class="muted" id="outMeta">—</span></div>
+<div class="mono" id="ctOut"></div>
+<div class="hint" hidden="" id="outLock" style="margin-top:2px"></div>
+<div hidden="" id="splitBox">
+<div class="slip"><div class="slabel">A 段</div><div class="mono" id="ctA"></div></div>
+<div class="slip"><div class="slabel">B 段</div><div class="mono" id="ctB"></div></div>
+</div>
+<div class="actrow"><button class="ghost" id="copyCt">复制密文</button><button class="ghost" id="splitBtn">分两半</button><button class="ghost" id="goOpen">去解封</button></div>
+</div>
+</div>
+<div hidden="" id="paneUnwrap" style="display:flex;flex-direction:column;gap:10px">
+<div class="card">
+<div class="ch"><span class="ct">密文</span><span class="muted">A256 格式</span></div>
+<textarea class="tin small" id="ctIn" placeholder="粘贴整段密文"></textarea>
+</div>
+<div class="card" hidden="" id="lockStat">
+<div class="ch"><span class="ct">时间锁</span><span class="tstat" id="lsBadge">—</span></div>
+<div class="cd" id="lsCount">—</div>
+<div class="cdsub" id="lsSub">—</div>
+<div class="tlx" id="lsTimeline"></div>
+</div>
+<div class="card">
+<div class="ch"><span class="ct">口令</span><span class="muted">对方口头告知</span></div>
+<input autocomplete="off" class="field" id="pw2" placeholder="解开这封信的口令" spellcheck="false" type="password"/>
+<button class="primary" id="unwrapBtn">解封阅读</button>
+</div>
+<div class="letter" hidden="" id="openRes">
+<div class="lt">✓ 完整性校验通过 · 时间窗未被改动</div>
+<div class="lbody" id="lBody"></div>
+<div class="lmeta"><span id="lExp">永久有效</span><span id="lTime"></span></div>
+</div>
+<div class="err" hidden="" id="openErr">
+<span style="flex:0 0 auto">⚠</span>
+<div><b id="errTitle">无法解开</b><span id="errBody"></span></div>
+</div>
+</div>
+</div>
+<div class="view" hidden="" id="v-gen"><div class="card">
+<div class="ch"><span class="ct">口令生成</span><span class="muted" id="gKind">字符型 20 位</span></div>
+<div class="seg" id="gSeg"><button class="on" data-g="char">字符型</button><button data-g="word">词组型</button></div>
+<div id="gChar" style="margin-top:10px">
+<div class="ch" style="margin:0"><span class="ct" style="font-size:11px">长度</span><span class="val" id="gLenV">20 位</span></div>
+<input class="rng" id="gLen" max="64" min="8" step="1" style="margin-top:6px" type="range" value="20"/>
+<div class="chips" id="gSets" style="margin-top:9px">
+<button aria-pressed="true" class="cbtn" data-s="lower">小写</button>
+<button aria-pressed="true" class="cbtn" data-s="upper">大写</button>
+<button aria-pressed="true" class="cbtn" data-s="digit">数字</button>
+<button aria-pressed="true" class="cbtn" data-s="sym">符号</button>
+<button aria-pressed="false" class="cbtn" data-s="safe">去易混</button>
+</div>
+</div>
+<div hidden="" id="gWord" style="margin-top:10px">
+<div class="ch" style="margin:0"><span class="ct" style="font-size:11px">词数</span><span class="val" id="gWordV">6 词</span></div>
+<input class="rng" id="gWords" max="12" min="3" step="1" style="margin-top:6px" type="range" value="6"/>
+<div class="chips" id="gSep" style="margin-top:9px">
+<button aria-pressed="true" class="cbtn" data-d="-">破折号</button>
+<button aria-pressed="false" class="cbtn" data-d=" ">空格</button>
+<button aria-pressed="false" class="cbtn" data-d="·">间隔点</button>
+<button aria-pressed="false" class="cbtn" data-d="">不加</button>
+</div>
+</div>
+<div class="pwbig" id="gOut" style="margin-top:11px;font-size:12px;font-weight:500;color:var(--text-tertiary)">点下面的按钮，生成一条能背下来的口令</div>
+<div class="params" id="gMeta" style="margin-top:8px"><span>熵 —</span><span>310k 迭代下 ≈ —</span></div>
+<button class="primary" id="gBtn">生成一条</button>
+<div class="actrow"><button class="ghost" id="gCopy">复制</button><button class="ghost" id="gSeal">填入封装页</button><button class="ghost" id="gRegen">换一条</button></div>
+</div>
+<div class="card">
+<div class="ch"><span class="ct">口令体检</span><span class="muted" id="ckBits">未输入</span></div>
+<input autocomplete="off" class="field" id="ckIn" placeholder="粘贴一条口令，看看它有多结实" spellcheck="false"/>
+<div class="meter" style="margin-top:9px"><i id="ckBar"></i></div>
+<div class="alist" id="ckList"><div class="hint" style="margin:0">一边输入一边打分，问题会直接列出来。</div></div>
+</div></div>
+<div class="view" hidden="" id="v-vault"><div class="card" id="vaultLock">
+<div class="ch"><span class="ct">密码本</span><span class="muted">本机加密存储</span></div>
+<input autocomplete="off" class="field" id="mkIn" placeholder="主密码" spellcheck="false" type="password"/>
+<div class="params" style="margin-top:8px"><span>PBKDF2-SHA256</span><span>310k 迭代</span><span>AES-256-GCM</span></div>
+<button class="primary" id="mkBtn">解锁密码本</button>
+<div class="hint" id="mkHint">第一次使用就是设主密码；忘了就无法恢复本子里的内容。</div>
+</div>
+<div class="card" hidden="" id="vaultOpen">
+<div class="ch"><span class="ct">密码本</span><span style="display:flex;align-items:center;gap:8px"><span class="tstat ok" id="vkCount">0 条</span><button class="link" id="vLock">锁定</button></span></div>
+<div id="vList"></div>
+<div class="ch" style="margin:13px 0 0"><span class="ct" style="font-size:11px">新增一条</span><span class="muted">加密后写进本机</span></div>
+<input class="field" id="vName" placeholder="名称，如「邮箱」" style="margin-top:7px"/>
+<input class="field" id="vUser" placeholder="账号 / 用户名" style="margin-top:6px"/>
+<input class="field" id="vPwd" placeholder="密码" style="margin-top:6px"/>
+<div class="actrow"><button class="ghost" id="vGen">随机填一条</button><button class="ghost" id="vSave">保存进本子</button></div>
+</div></div>
+<div class="view" hidden="" id="v-tools"><style>
+.emgRot{display:flex;align-items:center;justify-content:center;gap:9px;background:var(--i3);border-radius:12px;padding:11px 8px;margin-top:9px}
+.emgWin{width:46px;height:54px;border-radius:10px;background:#211C16;color:var(--primary);display:grid;place-items:center;font-family:ui-monospace,Menlo,monospace;font-size:22px;font-weight:700;box-shadow:inset 0 2px 8px rgba(0,0,0,.55),0 1px 0 rgba(255,255,255,.07)}
+.emgLbl{font-size:8.5px;color:var(--text-tertiary);text-align:center;margin-top:4px}
+.emgCfg{flex:1;min-width:0;font-size:9.5px;color:var(--text-secondary);line-height:1.75;font-family:ui-monospace,Menlo,monospace}
+.emgLamp{background:#181410;color:#F6B15C;font-family:ui-monospace,Menlo,monospace;font-size:11.5px;line-height:1.8;word-break:break-all;border-radius:10px;padding:9px 10px;max-height:130px;overflow:auto;letter-spacing:1px;margin-top:9px;min-height:40px}
+.emgStat{font-size:9.5px;color:var(--text-tertiary);margin-top:7px;line-height:1.6}
+</style>
+<div class="card" id="emgCard">
+<div class="ch"><span class="ct">配对机 · 恩格玛</span><span class="tstat" id="emgBadge">未配置</span></div>
+<div class="emgRot">
+<div><div class="emgWin" id="emgW0">A</div><div class="emgLbl">左转子</div></div>
+<div><div class="emgWin" id="emgW1">A</div><div class="emgLbl">中转子</div></div>
+<div><div class="emgWin" id="emgW2">A</div><div class="emgLbl">右转子</div></div>
+<div class="emgCfg" id="emgCfgTxt">未掷配置<br/>反射器 —</div>
+</div>
+<div style="display:flex;align-items:center;gap:6px;margin-top:8px">
+<span class="emgLbl" style="flex:0 0 auto;margin:0 2px 0 0">环设置</span>
+<input class="field" id="emgR0" maxlength="1" style="height:30px;width:40px;padding:0;text-align:center;text-transform:uppercase" value="A"/>
+<input class="field" id="emgR1" maxlength="1" style="height:30px;width:40px;padding:0;text-align:center;text-transform:uppercase" value="A"/>
+<input class="field" id="emgR2" maxlength="1" style="height:30px;width:40px;padding:0;text-align:center;text-transform:uppercase" value="A"/>
+<span class="emgLbl" style="flex:1;text-align:left;margin:0 0 0 4px">改动会挪动进位缺口</span>
+</div>
+<div class="actrow" style="margin-top:10px"><button class="ghost" id="emgRoll">掷一套配置</button><button class="ghost" id="emgCopyCfg">复制配置串</button></div>
+<input autocomplete="off" class="field" id="emgCfgIn" placeholder="粘贴好友发来的配置串" spellcheck="false" style="margin-top:6px"/>
+<div class="actrow"><button class="ghost" id="emgApply">套用配置</button></div>
+<textarea class="io" id="emgIn" maxlength="3000" placeholder="输入明文或密文——恩格玛对称，同一颗按钮"></textarea>
+<button class="primary" id="emgRun">运转</button>
+<div class="emgLamp" id="emgOut">灯板待亮</div>
+<div class="actrow"><button class="ghost" id="emgCopyOut">复制输出</button><button class="ghost" id="emgHome">归位</button></div>
+<div class="emgStat" id="emgStat">—</div>
+<div class="hint">配对：一方掷配置，把配置串发给好友，好友粘贴套用，两端从此同机。每封信整段输入后点运转，机器从初始位置走一遍并自动归位，双方永不错位；只有 A–Z 参与加密，其余字符原样直通。全配置约 3×10¹⁹ 种，现代算力可破——它管仪式感和古典趣味，真要保密请回加解密页用 AES。</div>
+</div><div class="card">
+<div class="ch"><span class="ct">指纹核对</span><span class="tstat" id="fpBadge">待输入</span></div>
+<textarea class="io" id="fpA" placeholder="原文 A"></textarea>
+<textarea class="io" id="fpB" placeholder="原文 B"></textarea>
+<div class="mono tiny" id="fpOut" style="margin-top:8px">两段一致时，指纹会完全相同</div>
+</div>
+<div class="card">
+<div class="ch"><span class="ct">编码转换</span><span class="muted" id="encMode">Base64</span></div>
+<div class="seg" id="encSeg"><button class="on" data-e="b64">Base64</button><button data-e="b64u">URL安全</button><button data-e="hex">Hex</button><button data-e="uri">URI</button></div>
+<textarea class="io ioMono" id="encIn" placeholder="要转换的内容" style="margin-top:9px"></textarea>
+<div class="actrow"><button class="ghost" id="encDo">编码</button><button class="ghost" id="encUn">解码</button><button class="ghost" id="encCopy">复制结果</button></div>
+<div class="mono tiny" id="encOut" style="margin-top:8px">—</div>
+</div>
+<div class="card">
+<div class="ch"><span class="ct">随机密钥</span><span class="muted">256 位</span></div>
+<div class="mono tiny" id="keyOut">点一下生成</div>
+<div class="actrow"><button class="ghost" id="keyGen">生成</button><button class="ghost" id="keyFmt">切格式</button><button class="ghost" id="keyCopy">复制</button></div>
+<div class="hint">来自 crypto.getRandomValues，可直接当 AES 密钥材料。</div>
+</div></div>
+</div>
+<div class="tabs">
+<button class="tab on" data-tab="seal">加解密</button>
+<button class="tab" data-tab="gen">口令</button>
+<button class="tab" data-tab="vault">密码本</button>
+<button class="tab" data-tab="tools">工具台</button>
+</div>
+</div>
+<div class="toast" id="toast"></div>
+</div>
+<script>
+(function(){
+const $=id=>document.getElementById(id);
+const te=new TextEncoder(),td=new TextDecoder();
+const HAS_WC=!!(window.crypto&&window.crypto.subtle&&window.crypto.getRandomValues);
+const ITER=310000,MIN=60000,HOUR=3600000,DAY=86400000;
+if(window.self===window.top)$('phone').classList.add('full');
+let toastTimer;
+function toast(m){const el=$('toast');el.textContent=m;el.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove('show'),2200);}
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function b64u(v){const b=new Uint8Array(v);let s='';for(let i=0;i<b.length;i++)s+=String.fromCharCode(b[i]);return btoa(s).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');}
+function unb64u(str){let s=String(str).replace(/-/g,'+').replace(/_/g,'/').replace(/\s+/g,'');while(s.length%4)s+='=';const bin=atob(s),u=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)u[i]=bin.charCodeAt(i);return u;}
+function copy(t){if(navigator.clipboard&&window.isSecureContext){navigator.clipboard.writeText(t).then(()=>toast('已复制'),()=>toast('请长按复制'));}else toast('请长按手动复制');}
+async function derive(pw,salt,iter){const base=await crypto.subtle.importKey('raw',te.encode(pw),'PBKDF2',false,['deriveKey']);return crypto.subtle.deriveKey({name:'PBKDF2',salt:salt,iterations:iter,hash:'SHA-256'},base,{name:'AES-GCM',length:256},false,['encrypt','decrypt']);}
+function fmtFull(ts){const d=new Date(ts),n=new Date(),md=(d.getMonth()+1)+'月'+d.getDate()+'日',hm=String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');return(d.getFullYear()!==n.getFullYear()?d.getFullYear()+'年':'')+md+' '+hm;}
+function fmtShort(ts){const d=new Date(ts);return(d.getMonth()+1)+'月'+d.getDate()+'日 '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');}
+function durLabel(ms){if(ms<=0)return '0';if(ms<HOUR)return Math.round(ms/MIN)+' 分钟';if(ms<DAY)return Math.round(ms/HOUR)+' 小时';const d=ms/DAY;return(d<1?d.toFixed(1):Math.round(d))+' 天';}
+function fmtLeft(ms){if(ms<0)ms=0;const s=Math.floor(ms/1000),d=Math.floor(s/86400),h=Math.floor(s%86400/3600),m=Math.floor(s%3600/60),x=s%60,p=n=>String(n).padStart(2,'0');return d>0?(d+' 天 '+p(h)+':'+p(m)+':'+p(x)):(p(h)+':'+p(m)+':'+p(x));}
+async function pack(pw,payload,lock){
+  const t=lock&&lock.t?lock.t:Date.now(),nb=lock?lock.nb:0,na=lock?lock.na:0;
+  if(!HAS_WC)return{str:'DEMO.'+b64u(te.encode(JSON.stringify({k:pw,nb:nb,na:na,t:t,tx:payload}))),kdf:0,enc:0,size:payload.length};
+  const salt=crypto.getRandomValues(new Uint8Array(16)),iv=crypto.getRandomValues(new Uint8Array(12));
+  const lockSeg=b64u(te.encode('v2|'+nb+'|'+na+'|'+t));
+  const head='A256.'+ITER+'.'+b64u(salt)+'.'+b64u(iv);
+  const aad=head+'.'+lockSeg;
+  const t0=performance.now();
+  const key=await derive(pw,salt,ITER);
+  const t1=performance.now();
+  const ct=await crypto.subtle.encrypt({name:'AES-GCM',iv:iv,additionalData:te.encode(aad)},key,te.encode(payload));
+  const t2=performance.now();
+  return{str:head+'.'+b64u(ct)+'.'+lockSeg,kdf:Math.round(t1-t0),enc:Math.round(t2-t1),size:ct.byteLength};
+}
+function parseCipher(raw){
+  const str=String(raw).trim().replace(/[\s\u00a0]+/g,'');
+  if(!str)throw new Error('密文是空的');
+  const p=str.split('.');
+  if(p[0]==='DEMO'){
+    let o;try{o=JSON.parse(td.decode(unb64u(p[1])));}catch(e){throw new Error('演示密文已损坏');}
+    return{kind:'demo',pw:o.k,nb:o.nb||0,na:o.na||0,t:o.t||0,text:o.tx};
+  }
+  if(p[0]!=='A256')throw new Error('不是 A256 密文，请整段复制');
+  if(p.length===5)return{kind:'legacy',iter:Number(p[1]),salt:p[2],iv:p[3],ct:p[4],nb:0,na:0,t:0};
+  if(p.length!==6)throw new Error('密文被截断了，请完整复制');
+  let meta;try{meta=td.decode(unb64u(p[5]));}catch(e){throw new Error('时间锁段已损坏');}
+  const a=meta.split('|');
+  if(a[0]!=='v2')throw new Error('时间锁版本无法识别');
+  return{kind:'v2',iter:Number(p[1]),salt:p[2],iv:p[3],ct:p[4],nb:Number(a[1])||0,na:Number(a[2])||0,t:Number(a[3])||0,aad:'A256.'+p[1]+'.'+p[2]+'.'+p[3]+'.'+p[5]};
+}
+async function unpack(pw,raw){
+  const o=parseCipher(raw);
+  if(o.kind==='demo'){if(String(o.pw)!==pw)throw new Error('口令不正确');return o;}
+  if(!HAS_WC)throw new Error('当前环境不支持 Web Crypto');
+  const key=await derive(pw,unb64u(o.salt),o.iter);
+  const algo={name:'AES-GCM',iv:unb64u(o.iv)};
+  if(o.kind==='v2')algo.additionalData=te.encode(o.aad);
+  try{o.text=td.decode(await crypto.subtle.decrypt(algo,key,unb64u(o.ct)));}
+  catch(e){throw new Error('口令不对，或密文/时间窗被人改过');}
+  return o;
+}
+function stateOf(o,now){if(o.na&&now>o.na)return 'dead';if(o.nb&&now<o.nb)return 'wait';if(o.nb||o.na)return 'open';return 'free';}
+function bitsOf(pw){if(!pw)return 0;let pool=0;if(/[a-z]/.test(pw))pool+=26;if(/[A-Z]/.test(pw))pool+=26;if(/[0-9]/.test(pw))pool+=10;if(/[^a-zA-Z0-9]/.test(pw))pool+=33;let b=pw.length*Math.log2(pool||1);b*=Math.min(1,new Set(pw).size/pw.length*1.7+0.28);return Math.round(b*10)/10;}
+async function sha256(s){
+  if(!HAS_WC){let h=2166136261>>>0;for(const b of te.encode(s)){h^=b;h=Math.imul(h,16777619)>>>0;}return 'djb2-'+h.toString(16).padStart(8,'0');}
+  const b=await crypto.subtle.digest('SHA-256',te.encode(s));
+  return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('');
+}
+function randInt(max){if(HAS_WC){const buf=new Uint32Array(1),lim=Math.floor(4294967296/max)*max;let v;do{crypto.getRandomValues(buf);v=buf[0];}while(v>=lim);return v%max;}return Math.floor(Math.random()*max);}
+function humanTime(s){if(!isFinite(s)||s<1)return '一瞬间';if(s<60)return Math.round(s)+' 秒';if(s<3600)return Math.round(s/60)+' 分钟';if(s<86400)return Math.round(s/3600)+' 小时';if(s<31536000)return Math.round(s/86400)+' 天';const y=s/31536000;if(y<1e4)return Math.round(y).toLocaleString('zh-CN')+' 年';if(y<1e12)return (y/1e4).toFixed(1)+' 万年';return '宇宙年龄的 '+(y/1.38e10).toExponential(1)+' 倍';}
+function crackOf(b){return humanTime(Math.pow(2,Math.max(b-1,0))/1e11);}
+$('algPill').textContent=HAS_WC?'AES-256-GCM':'DEMO 模式';
+if(!HAS_WC)$('algPill').classList.add('warn');
+window.XB={$,te,td,HAS_WC,ITER,toast,esc,copy,b64u,unb64u,pack,unpack,parseCipher,stateOf,bitsOf,sha256,randInt,humanTime,crackOf,fmtFull,fmtShort,fmtLeft,durLabel};
+
+/* ---------- 时间锁配置 ---------- */
+const L={on:false,nbRel:'86400000',nbAbs:'',naRel:'0',naAbs:''};
+function targets(){
+  const now=Date.now();let nb=0,na=0;
+  if(L.nbRel==='abs')nb=L.nbAbs?new Date(L.nbAbs).getTime():0;else nb=Number(L.nbRel)>0?now+Number(L.nbRel):0;
+  if(L.naRel==='abs')na=L.naAbs?new Date(L.naAbs).getTime():0;else if(Number(L.naRel)>0)na=now+Number(L.naRel);
+  return{nb:nb,na:na};
+}
+function renderLock(){
+  $('lockCfg').hidden=!L.on;
+  $('lockSummary').textContent=L.on?'已启用':'未启用';
+  $('lockSummary').className='tstat'+(L.on?' warn':'');
+  Array.from($('nbChips').children).forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.nb===L.nbRel)));
+  Array.from($('naChips').children).forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.na===L.naRel)));
+  $('nbAbs').hidden=L.nbRel!=='abs';$('naAbs').hidden=L.naRel!=='abs';
+  $('nbHint').textContent=L.nbRel==='abs'?(L.nbAbs?fmtShort(new Date(L.nbAbs).getTime()):'待选'):(L.nbRel==='0'?'立刻':'延迟 '+durLabel(Number(L.nbRel)));
+  $('naHint').textContent=L.naRel==='abs'?(L.naAbs?fmtShort(new Date(L.naAbs).getTime()):'待选'):(L.naRel==='0'?'不设':'延迟 '+durLabel(Number(L.naRel)));
+  const p=$('lockPreview');
+  if(!L.on){p.textContent='未启用：封装后永久可解封。';p.className='tlp';return;}
+  const t=targets(),miss=(L.nbRel==='abs'&&!L.nbAbs)||(L.naRel==='abs'&&!L.naAbs),bad=miss||(t.na&&t.nb&&t.na<=t.nb);
+  let txt='封缄后：'+(t.nb?'需等到 '+fmtFull(t.nb)+' 才能解封':'立即可解封')+(t.na?'，'+fmtFull(t.na)+' 之后作废':'，且永久有效');
+  if(t.nb&&t.na&&t.na>t.nb)txt+='。窗口约 '+durLabel(t.na-t.nb)+'。';
+  if(t.na&&t.nb&&t.na<=t.nb)txt='最晚可解封必须晚于最早可解封，请调整。';
+  if(miss)txt='请为「指定时刻」选一个日期时间。';
+  p.textContent=txt;p.className='tlp'+(bad?' warn':'');
+}
+$('ttlSw').addEventListener('click',()=>{
+  L.on=$('ttlSw').classList.toggle('on');
+  $('ttlSw').setAttribute('aria-checked',String(L.on));
+  renderLock();toast(L.on?'时间锁已启用':'已切回永久有效');
+});
+$('nbChips').addEventListener('click',e=>{const b=e.target.closest('.cbtn');if(!b)return;L.nbRel=b.dataset.nb;renderLock();});
+$('naChips').addEventListener('click',e=>{const b=e.target.closest('.cbtn');if(!b)return;L.naRel=b.dataset.na;renderLock();});
+$('nbAbs').addEventListener('input',e=>{L.nbAbs=e.target.value;renderLock();});
+$('naAbs').addEventListener('input',e=>{L.naAbs=e.target.value;renderLock();});
+const nowLocal=new Date();nowLocal.setMinutes(nowLocal.getMinutes()-nowLocal.getTimezoneOffset());
+$('nbAbs').min=nowLocal.toISOString().slice(0,16);$('naAbs').min=nowLocal.toISOString().slice(0,16);
+
+/* ---------- 封装 ---------- */
+let lastCt='',lastPw='';
+$('sealSeg').addEventListener('click',e=>{
+  const b=e.target.closest('button');if(!b)return;
+  Array.from($('sealSeg').children).forEach(x=>x.classList.toggle('on',x===b));
+  $('paneWrap').hidden=b.dataset.p!=='wrap';$('paneUnwrap').hidden=b.dataset.p!=='unwrap';
+  if(b.dataset.p==='unwrap')renderUnwrap();
+});
+$('plain').addEventListener('input',e=>{$('wc').textContent=e.target.value.length+' 字符';});
+$('pw1').addEventListener('input',e=>{
+  const v=e.target.value,b=bitsOf(v);
+  $('pwBar').style.width=Math.min(100,b/80*100).toFixed(0)+'%';
+  $('pwBar').style.background=b<40?'var(--destructive)':b<60?'var(--warning)':'var(--success)';
+  $('pwBits').textContent=v?b.toFixed(1)+' 位熵':'未输入';
+});
+$('wrapBtn').addEventListener('click',async()=>{
+  const text=$('plain').value.trim(),pw=$('pw1').value;
+  if(!text){toast('先写点内容');$('plain').focus();return;}
+  if(pw.length<8){toast('口令至少 8 位，12 位以上更稳');$('pw1').focus();return;}
+  let lock=null;
+  if(L.on){
+    if(L.nbRel==='abs'&&!L.nbAbs){toast('请选择最早可解封的时刻');return;}
+    if(L.naRel==='abs'&&!L.naAbs){toast('请选择最晚可解封的时刻');return;}
+    const t=targets();
+    if(t.na&&t.nb&&t.na<=t.nb){toast('最晚解封必须晚于最早解封');return;}
+    lock={nb:t.nb,na:t.na,t:Date.now()};
+  }
+  const btn=$('wrapBtn');btn.disabled=true;btn.textContent='派生密钥中…';
+  try{
+    const r=await pack(pw,text,lock);
+    lastCt=r.str;lastPw=pw;
+    $('ctOut').textContent=r.str;
+    $('outMeta').textContent=HAS_WC?('KDF '+r.kdf+'ms · 加密 '+r.enc+'ms · '+r.size+'B'):'演示模式 · 未真实加密';
+    if(lock){$('outLock').hidden=false;$('outLock').textContent='时间锁：'+fmtFull(lock.t)+' 封缄 → '+(lock.nb?fmtFull(lock.nb)+' 起可解':'立即可解')+(lock.na?' → '+fmtFull(lock.na)+' 作废':' · 永不作废');}
+    else $('outLock').hidden=true;
+    const half=Math.ceil(r.str.length/2);
+    $('ctA').textContent=r.str.slice(0,half);$('ctB').textContent=r.str.slice(half);
+    $('splitBox').hidden=true;$('ctOut').hidden=false;$('splitBtn').textContent='分两半';$('outCard').hidden=false;
+    toast(lock?'已封装，时间窗写入密文头':'已用 AES-256-GCM 封装');
+  }catch(e){toast('封装失败：'+e.message);}
+  btn.disabled=false;btn.textContent='AES-256-GCM 封装';
+});
+$('copyCt').addEventListener('click',()=>{lastCt?copy(lastCt):toast('还没有密文');});
+$('splitBtn').addEventListener('click',()=>{
+  if(!lastCt)return;
+  const on=$('splitBox').hidden;
+  $('splitBox').hidden=!on;$('ctOut').hidden=on;$('splitBtn').textContent=on?'合回一封':'分两半';
+});
+$('goOpen').addEventListener('click',()=>{
+  if(!lastCt)return;
+  $('ctIn').value=lastCt;$('pw2').value=lastPw;
+  Array.from($('sealSeg').children).forEach(x=>x.classList.toggle('on',x.dataset.p==='unwrap'));
+  $('paneWrap').hidden=true;$('paneUnwrap').hidden=false;
+  renderUnwrap();toast('密文与口令已带入');
+});
+
+/* ---------- 解封 + 时间门禁 ---------- */
+let cdTimer=null,cur=null;
+function renderUnwrap(){
+  clearInterval(cdTimer);cdTimer=null;cur=null;
+  $('openRes').hidden=true;$('openErr').hidden=true;
+  const raw=$('ctIn').value;
+  if(!raw.trim()){$('lockStat').hidden=true;$('unwrapBtn').disabled=false;$('unwrapBtn').textContent='解封阅读';return;}
+  let o;
+  try{o=parseCipher(raw);}catch(e){
+    $('lockStat').hidden=false;$('lsBadge').textContent='格式异常';$('lsBadge').className='tstat bad';
+    $('lsCount').textContent='密文不完整';$('lsSub').textContent=e.message;$('lsTimeline').innerHTML='';
+    $('unwrapBtn').disabled=true;$('unwrapBtn').textContent='密文无效';return;
+  }
+  cur=o;$('lockStat').hidden=false;
+  drawStatus();cdTimer=setInterval(drawStatus,1000);
+}
+function drawStatus(){
+  if(!cur)return;
+  const o=cur,now=Date.now(),st=stateOf(o,now),badge=$('lsBadge'),btn=$('unwrapBtn'),rows=[];
+  if(o.t)rows.push(['','封缄于',fmtFull(o.t)]);
+  if(o.nb)rows.push([now>=o.nb?'now':'on','起可读',fmtFull(o.nb)]);
+  if(o.na)rows.push([now>o.na?'':'on','作废于',fmtFull(o.na)]);
+  if(!o.nb&&!o.na&&o.t)rows.push(['','时间窗','未设置']);
+  let h=rows.map(r=>'<div class="tlr"><i class="'+r[0]+'"></i><b>'+r[1]+'</b><span>'+esc(r[2])+'</span></div>').join('');
+  if(o.t&&now<o.t-120000)h+='<div class="tlp warn">本机时间比封缄时间还早，可能被回拨过，上面的判断不可信。</div>';
+  $('lsTimeline').innerHTML=h;
+  if(st==='dead'){
+    badge.textContent='已作废';badge.className='tstat bad';
+    $('lsCount').textContent='时间锁已过 · 无法解封';
+    $('lsSub').textContent='已超过作废时刻 '+fmtLeft(now-o.na)+'。密文虽在，本应用拒绝解密。';
+    btn.disabled=true;btn.textContent='已过期';
+  }else if(st==='wait'){
+    badge.textContent='未到时间';badge.className='tstat warn';
+    $('lsCount').textContent='还有 '+fmtLeft(o.nb-now);
+    $('lsSub').textContent='到达 '+fmtShort(o.nb)+' 后才受理解封。';
+    btn.disabled=true;btn.textContent='未到时间';
+  }else if(st==='open'){
+    badge.textContent='可解封';badge.className='tstat ok';
+    $('lsCount').textContent=o.na?'窗口剩余 '+fmtLeft(o.na-now):'已在可解封窗口';
+    $('lsSub').textContent='口令正确即可读信，GCM 同时校验时间窗未被改动。';
+    btn.disabled=false;btn.textContent='解封阅读';
+  }else{
+    badge.textContent=o.kind==='legacy'?'旧格式':'无锁';badge.className='tstat';
+    $('lsCount').textContent=o.kind==='legacy'?'旧版密文 · 无时间窗':'永久可解封';
+    $('lsSub').textContent=o.kind==='legacy'?'五段头没有时间锁字段，只能凭口令解封。':'封缄时未启用时间锁。';
+    btn.disabled=false;btn.textContent='解封阅读';
+  }
+}
+$('ctIn').addEventListener('input',renderUnwrap);
+$('unwrapBtn').addEventListener('click',async()=>{
+  const ct=$('ctIn').value.trim(),pw=$('pw2').value;
+  if(!ct){toast('先粘贴密文');return;}
+  if(!pw){toast('请输入口令');return;}
+  const o=cur||parseCipher(ct),st=stateOf(o,Date.now());
+  if(st==='dead'){toast('时间锁已过，这封信永久作废');return;}
+  if(st==='wait'){toast('还没到时间，还要 '+fmtLeft(o.nb-Date.now()));return;}
+  const btn=$('unwrapBtn');btn.disabled=true;btn.textContent='校验中…';
+  try{
+    const r=await unpack(pw,ct);
+    if(stateOf(r,Date.now())==='dead')throw new Error('时间锁刚生效，已作废');
+    $('lBody').textContent=r.text;
+    $('lExp').textContent=(r.nb||r.na)?((r.nb?'可读自 '+fmtShort(r.nb):'即时可读')+(r.na?' · 至 '+fmtShort(r.na):' · 永久')):'永久有效';
+    $('lTime').textContent='解封于 '+fmtShort(Date.now());
+    $('openRes').hidden=false;$('openErr').hidden=true;
+  }catch(e){
+    $('openRes').hidden=true;$('openErr').hidden=false;
+    $('errTitle').textContent=e.message.indexOf('作废')>=0?'时间锁已生效':(e.message.indexOf('改过')>=0?'认证失败':'无法解开');
+    $('errBody').textContent=e.message;
+  }
+  btn.disabled=false;drawStatus();
+});
+
+/* ---------- 分页 ---------- */
+document.querySelectorAll('.tab').forEach(b=>{
+  b.addEventListener('click',()=>{
+    document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('on',x===b));
+    const k=b.dataset.tab;
+    ['seal','gen','vault','tools'].forEach(n=>{$('v-'+n).hidden=n!==k;});
+    $('screen').scrollTop=0;
+    if(k!=='seal'){clearInterval(cdTimer);cdTimer=null;}
+    if(window.XBmods&&window.XBmods[k])window.XBmods[k]();
+  });
+});
+renderLock();
+renderUnwrap();
+})();
+</script><script>
+(function(){
+const X=window.XB;if(!X)return;
+const $=X.$,te=X.te,td=X.td,HAS_WC=X.HAS_WC,toast=X.toast,esc=X.esc,copy=X.copy,
+      b64u=X.b64u,unb64u=X.unb64u,bitsOf=X.bitsOf,humanTime=X.humanTime,randInt=X.randInt,sha256=X.sha256;
+const ITER=310000;
+
+/* ===== 口令工坊：生成 + 体检 ===== */
+const WORDS='青石 白露 长风 夜航 远山 旧港 薄雾 碎银 灯芯 苔痕 雁书 松间 凉茶 故里 初雪 青鸟 晚钟 沙岸 孤舟 寒星 竹影 溪桥 石阶 野渡 雨后 檐下 炊烟 麦田 芦苇 潮声 霜降 谷雨 小满 惊蛰 冬至 白驹 苍梧 碧落 赤霞 丹砂 砧声 笛孔 马灯 铜铃 纸鸢 油伞 蒲扇 陶罐 木匣 瓦当 门环 拂尘 经卷 砚台 笔洗 印章 旧梦 归途 长亭 短笛 斜阳 暮雪 青灯 古渡'.split(' ');
+const LOW='abcdefghijklmnopqrstuvwxyz',UP='ABCDEFGHIJKLMNOPQRSTUVWXYZ',DIG='0123456789',SYM='!@#$%^&*-_=+?.,:;()[]{}<>~/|';
+const G={mode:'char',len:20,sets:{lower:1,upper:1,digit:1,sym:1,safe:0},words:6,sep:'-'};
+let lastG='';
+function poolOf(){
+  let p='';
+  if(G.sets.lower)p+=LOW;
+  if(G.sets.upper)p+=UP;
+  if(G.sets.digit)p+=DIG;
+  if(G.sets.sym)p+=SYM;
+  if(!p)p=LOW;
+  if(G.sets.safe)p=p.replace(/[il1Lo0O|`~]/g,'');
+  return p;
+}
+function pick(s){return s[randInt(s.length)];}
+function guessTime(bits){const s=Math.pow(2,bits)/1e4;return s<1?'一瞬间':humanTime(s);}
+function roll(){
+  let out='',bits=0;
+  if(G.mode==='char'){
+    const p=poolOf();if(!p)return;
+    const must=[];
+    if(G.sets.lower)must.push(pick(LOW));
+    if(G.sets.upper)must.push(pick(UP));
+    if(G.sets.digit)must.push(pick(DIG));
+    if(G.sets.sym)must.push(pick(SYM));
+    while(must.length<G.len)must.push(pick(p));
+    for(let i=must.length-1;i>0;i--){const j=randInt(i+1),t=must[i];must[i]=must[j];must[j]=t;}
+    out=must.slice(0,G.len).join('');
+    bits=Math.round(G.len*Math.log2(p.length));
+  }else{
+    const arr=WORDS.slice(),sel=[];
+    for(let i=0;i<G.words&&arr.length;i++)sel.push(arr.splice(randInt(arr.length),1)[0]);
+    out=sel.join(G.sep);bits=Math.round(G.words*6);
+  }
+  lastG=out;
+  const o=$('gOut');o.textContent=out;o.style.color='var(--text-primary)';o.style.fontSize='15px';o.style.fontWeight='600';
+  $('gMeta').innerHTML='<span>熵 '+bits+' 位</span><span>310k 迭代下 ≈ '+guessTime(bits)+'</span>';
+}
+$('gSeg').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;
+  G.mode=b.dataset.g;
+  Array.from($('gSeg').children).forEach(x=>x.classList.toggle('on',x===b));
+  $('gChar').hidden=G.mode!=='char';$('gWord').hidden=G.mode!=='word';
+  $('gKind').textContent=G.mode==='char'?'字符型 '+G.len+' 位':'词组型 '+G.words+' 词';
+});
+$('gLen').addEventListener('input',e=>{G.len=Number(e.target.value);$('gLenV').textContent=G.len+' 位';$('gKind').textContent='字符型 '+G.len+' 位';});
+$('gWords').addEventListener('input',e=>{G.words=Number(e.target.value);$('gWordV').textContent=G.words+' 词';$('gKind').textContent='词组型 '+G.words+' 词';});
+$('gSets').addEventListener('click',e=>{const b=e.target.closest('.cbtn');if(!b)return;
+  const k=b.dataset.s;G.sets[k]=G.sets[k]?0:1;
+  if(!G.sets.lower&&!G.sets.upper&&!G.sets.digit&&!G.sets.sym){G.sets.lower=1;toast('至少留一组字符');}
+  Array.from($('gSets').children).forEach(x=>x.setAttribute('aria-pressed',String(!!G.sets[x.dataset.s])));
+});
+$('gSep').addEventListener('click',e=>{const b=e.target.closest('.cbtn');if(!b)return;
+  G.sep=b.dataset.d;Array.from($('gSep').children).forEach(x=>x.setAttribute('aria-pressed',String(x===b)));
+});
+$('gBtn').addEventListener('click',roll);
+$('gRegen').addEventListener('click',roll);
+$('gCopy').addEventListener('click',()=>{if(!lastG){toast('先点生成');return;}copy(lastG);});
+$('gSeal').addEventListener('click',()=>{
+  if(!lastG){toast('先点生成');return;}
+  const el=$('pw1');el.value=lastG;el.dispatchEvent(new Event('input'));
+  const tb=document.querySelector('.tab[data-tab="seal"]');if(tb)tb.click();
+  toast('已填入封装页');
+});
+const WEAK=['password','123456','12345678','123456789','qwerty','abc123','admin','iloveyou','111111','000000','letmein','welcome','monkey','dragon','sunshine','football','princess','woaini','5201314','888888','666666','a123456','test123','密码','woaini1314'];
+function judge(pw){
+  const bits=pw?bitsOf(pw):0,rows=[];
+  if(!pw)return{bits:0,rows:rows};
+  if(pw.length<12)rows.push(['warn','!','偏短','只有 '+pw.length+' 位，12 位是底线。']);
+  if(/^\d+$/.test(pw))rows.push(['bad','✕','纯数字','数字池只有 10 个符号，再长也好穷举。']);
+  if(WEAK.indexOf(pw.toLowerCase())>=0)rows.push(['bad','✕','常见弱口令','这条在字典里排得很靠前。']);
+  if(/(.)\1{2,}/.test(pw))rows.push(['warn','!','字符重复','连续三个相同字符，实际熵会打折。']);
+  if(/qwer|asdf|zxcv|1234|0987|mnbv/i.test(pw))rows.push(['bad','✕','键盘序列','qwerty、1234 这类早被收进字典。']);
+  if(/(19|20)\d{2}/.test(pw))rows.push(['warn','!','含年份','年份和生日会把搜索空间砍掉一大块。']);
+  if(/^[a-z]+$/.test(pw))rows.push(['warn','!','字符集单一','全是小写字母，池子只有 26 个。']);
+  if(bits>=80)rows.push(['ok','✓','很结实',bits.toFixed(1)+' 位熵，暴力破解几乎无望。']);
+  else if(bits>=60)rows.push(['ok','✓','够用',bits.toFixed(1)+' 位熵，配 310k 迭代已够日常。']);
+  return{bits:bits,rows:rows};
+}
+function paintCheck(){
+  const pw=$('ckIn').value,r=judge(pw);
+  $('ckBits').textContent=pw?r.bits.toFixed(1)+' 位熵':'未输入';
+  const bar=$('ckBar');
+  bar.style.width=Math.min(100,r.bits).toFixed(0)+'%';
+  bar.style.background=r.bits<40?'var(--destructive)':r.bits<60?'var(--warning)':'var(--success)';
+  let h=r.rows.map(function(x){return '<div class="arow '+x[0]+'"><span class="ak">'+x[1]+'</span><span><b>'+x[2]+'</b> · '+x[3]+'</span></div>';}).join('');
+  if(pw)h+='<div class="arow"><span class="ak">≈</span><span>310k 迭代下单机猜测约 '+guessTime(r.bits)+'</span></div>';
+  $('ckList').innerHTML=h||'<div class="hint" style="margin:0">一边输入一边打分，问题会直接列出来。</div>';
+}
+$('ckIn').addEventListener('input',paintCheck);
+
+/* ===== 密码本 ===== */
+const VK='xz.vault.v1';
+let items=[],MK=null;
+function vload(){try{const s=localStorage.getItem(VK);return s?JSON.parse(s):null;}catch(e){return null;}}
+function vsave(o){try{localStorage.setItem(VK,JSON.stringify(o));return true;}catch(e){return false;}}
+function mkLabel(){return vload()?'解锁密码本':'设置主密码并解锁';}
+async function deriveK(pw,salt){
+  const base=await crypto.subtle.importKey('raw',te.encode(pw),'PBKDF2',false,['deriveKey']);
+  return crypto.subtle.deriveKey({name:'PBKDF2',salt:salt,iterations:ITER,hash:'SHA-256'},base,{name:'AES-GCM',length:256},false,['encrypt','decrypt']);
+}
+function bootVault(){
+  const rec=vload();
+  $('mkHint').textContent=rec?'本机已有密码本，输入主密码解锁。':'第一次使用就是设主密码；忘了就无法恢复本子里的内容。';
+  $('mkBtn').textContent=mkLabel();
+}
+function renderVault(){
+  $('vkCount').textContent=items.length+' 条';
+  if(!items.length){$('vList').innerHTML='<div class="hint" style="margin:0">本子还空着，往下填第一条。</div>';return;}
+  $('vList').innerHTML=items.map(function(it,i){
+    const dots=it.p?'•'.repeat(Math.min(14,it.p.length)):'—';
+    return '<div class="vrow"><div class="vtop"><div class="vn">'+esc(it.n||'未命名')+'</div><span class="vb">已加密</span></div>'+
+    '<div class="vu">'+esc(it.u||'—')+'</div>'+
+    '<div class="vpw"><code>'+dots+'</code><button class="vbtn" data-i="'+i+'" data-a="cp">复制</button><button class="vbtn d" data-i="'+i+'" data-a="rm">删除</button></div></div>';
+  }).join('');
+}
+async function persist(){
+  if(!MK||!MK.key)return;
+  const iv=crypto.getRandomValues(new Uint8Array(12));
+  const ct=await crypto.subtle.encrypt({name:'AES-GCM',iv:iv},MK.key,te.encode(JSON.stringify(items)));
+  if(!vsave({salt:b64u(MK.salt),iv:b64u(iv),ct:b64u(ct)}))toast('本机存不下，仅本次会话有效');
+}
+async function unlockVault(){
+  const pw=$('mkIn').value;
+  if(pw.length<6){toast('主密码至少 6 位');$('mkIn').focus();return;}
+  const btn=$('mkBtn');btn.disabled=true;btn.textContent='派生密钥中…';
+  try{
+    const rec=vload();
+    if(!HAS_WC){
+      if(rec){toast('当前环境不支持 Web Crypto，打不开已存的密码本');btn.disabled=false;btn.textContent=mkLabel();return;}
+      MK={key:null};items=[];
+      $('mkIn').value='';$('vaultLock').hidden=true;$('vaultOpen').hidden=false;renderVault();
+      toast('演示模式：仅本次会话有效');
+      btn.disabled=false;btn.textContent=mkLabel();return;
+    }
+    const salt=(rec&&rec.salt)?unb64u(rec.salt):crypto.getRandomValues(new Uint8Array(16));
+    const key=await deriveK(pw,salt);
+    if(rec&&rec.ct){
+      try{items=JSON.parse(td.decode(await crypto.subtle.decrypt({name:'AES-GCM',iv:unb64u(rec.iv)},key,unb64u(rec.ct))));}
+      catch(e){toast('主密码不对');btn.disabled=false;btn.textContent=mkLabel();return;}
+    }else items=[];
+    MK={key:key,salt:salt};
+    $('mkIn').value='';$('vaultLock').hidden=true;$('vaultOpen').hidden=false;renderVault();
+    await persist();
+    toast('密码本已解锁');
+  }catch(e){toast('解锁失败：'+e.message);}
+  btn.disabled=false;btn.textContent=mkLabel();
+}
+$('mkBtn').addEventListener('click',unlockVault);
+$('mkIn').addEventListener('keydown',e=>{if(e.key==='Enter')unlockVault();});
+$('vSave').addEventListener('click',async()=>{
+  if(!MK){toast('先解锁');return;}
+  const n=$('vName').value.trim(),u=$('vUser').value.trim(),p=$('vPwd').value;
+  if(!n&&!u&&!p){toast('至少填一项');return;}
+  items.unshift({n:n||'未命名',u:u,p:p});
+  await persist();
+  $('vName').value='';$('vUser').value='';$('vPwd').value='';
+  renderVault();toast(MK.key?'已加密写入本机':'已写入本次会话');
+});
+$('vGen').addEventListener('click',()=>{
+  const p='ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!@#$%^&*-_=+';
+  let s='';for(let i=0;i<20;i++)s+=p[randInt(p.length)];
+  $('vPwd').value=s;
+});
+$('vLock').addEventListener('click',()=>{
+  MK=null;items=[];$('vaultOpen').hidden=true;$('vaultLock').hidden=false;bootVault();toast('已锁定');
+});
+$('vList').addEventListener('click',async e=>{
+  const b=e.target.closest('.vbtn');if(!b)return;
+  const i=Number(b.dataset.i),it=items[i];if(!it)return;
+  if(b.dataset.a==='cp'){copy(it.p||'');return;}
+  items.splice(i,1);await persist();renderVault();toast('已删除');
+});
+
+/* ===== 工具台 ===== */
+async function fpRun(){
+  const a=$('fpA').value,b=$('fpB').value,badge=$('fpBadge'),out=$('fpOut');
+  if(!a&&!b){badge.textContent='待输入';badge.className='tstat';out.textContent='两段一致时，指纹会完全相同';return;}
+  const ha=await sha256(a),hb=await sha256(b),both=a&&b,same=a===b;
+  badge.textContent=both?(same?'一致':'不一致'):'待对比';
+  badge.className='tstat '+(both?(same?'ok':'bad'):'');
+  out.textContent='A '+(a?ha.slice(0,40):'—')+'\nB '+(b?hb.slice(0,40):'—')+'\n'+(both?(same?'✓ 两段完全相同':'✕ 两段不同，别急着用'):'把两段都填上再对比');
+}
+$('fpA').addEventListener('input',fpRun);
+$('fpB').addEventListener('input',fpRun);
+let encMode='b64';
+function toB64(u){let s='';for(let i=0;i<u.length;i++)s+=String.fromCharCode(u[i]);return btoa(s);}
+function fromB64(s){s=String(s).replace(/-/g,'+').replace(/_/g,'/').replace(/[^A-Za-z0-9+/=]/g,'');while(s.length%4)s+='=';const bin=atob(s),u=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)u[i]=bin.charCodeAt(i);return u;}
+function toHex(u){let s='';for(let i=0;i<u.length;i++)s+=u[i].toString(16).padStart(2,'0');return s;}
+function fromHex(h){h=String(h).replace(/[^0-9a-fA-F]/g,'');if(h.length%2)h='0'+h;const u=new Uint8Array(h.length/2);for(let i=0;i<u.length;i++)u[i]=parseInt(h.substr(i*2,2),16);return u;}
+$('encSeg').addEventListener('click',e=>{
+  const b=e.target.closest('button');if(!b)return;
+  encMode=b.dataset.e;
+  Array.from($('encSeg').children).forEach(x=>x.classList.toggle('on',x===b));
+  $('encMode').textContent=b.textContent;
+  $('encOut').textContent='—';
+});
+$('encDo').addEventListener('click',()=>{
+  const s=$('encIn').value;if(!s){toast('先输入内容');return;}
+  try{
+    let out='';
+    if(encMode==='b64')out=toB64(te.encode(s));
+    else if(encMode==='b64u')out=b64u(te.encode(s));
+    else if(encMode==='hex')out=toHex(te.encode(s));
+    else out=encodeURIComponent(s);
+    $('encOut').textContent=out;
+  }catch(e){toast('编码失败');}
+});
+$('encUn').addEventListener('click',()=>{
+  const s=$('encIn').value.trim();if(!s){toast('先输入内容');return;}
+  try{
+    let out='';
+    if(encMode==='b64')out=td.decode(fromB64(s));
+    else if(encMode==='b64u')out=td.decode(unb64u(s));
+    else if(encMode==='hex')out=td.decode(fromHex(s));
+    else out=decodeURIComponent(s);
+    $('encOut').textContent=out;
+  }catch(e){toast('这段解不开，检查一下格式');}
+});
+$('encCopy').addEventListener('click',()=>{const t=$('encOut').textContent;if(!t||t==='—'){toast('还没有结果');return;}copy(t);});
+let kHex='',kB64='',kView='hex';
+function newKey(){
+  let k;
+  if(window.crypto&&crypto.getRandomValues)k=crypto.getRandomValues(new Uint8Array(32));
+  else{k=new Uint8Array(32);for(let i=0;i<32;i++)k[i]=Math.floor(Math.random()*256);}
+  kHex=toHex(k);kB64=b64u(k);kView='hex';paintKey();
+}
+function paintKey(){$('keyOut').textContent=kView==='hex'?kHex:kB64;}
+$('keyGen').addEventListener('click',newKey);
+$('keyFmt').addEventListener('click',()=>{if(!kHex){newKey();}kView=kView==='hex'?'b64':'hex';paintKey();});
+$('keyCopy').addEventListener('click',()=>{if(!kHex){toast('先生成');return;}copy(kView==='hex'?kHex:kB64);});
+
+bootVault();roll();paintCheck();fpRun();newKey();
+window.XBmods=window.XBmods||{};
+})();
+</script>
+<script id="ext">
+window.XBmods={};
+</script><script>
+(function(){
+const X=window.XB;if(!X)return;
+const $=X.$,toast=X.toast,copy=X.copy,randInt=X.randInt,esc=X.esc;
+const ROTORS={
+  I:{w:'EKMFLGDQVZNTOWYHXUSPAIBRCJ',n:'Q'},
+  II:{w:'AJDKSIRUXBLHWTMCQGZNPYFVOE',n:'E'},
+  III:{w:'BDFHJLCPRTXVZNYEIWGAKMUSQO',n:'V'},
+  IV:{w:'ESOVPZJAYQUIRHXLNFTGKDCMWB',n:'J'},
+  V:{w:'VZBRGITYUPSDNHLXAWMJQOFECK',n:'Z'}
+};
+const REFL={B:'YRUHQSLDPXNGOKMIEBFZCWVJAT',C:'FVPJIAOYEDRZXWGCTKUQSBNMHL'};
+const INV={};for(const k in ROTORS){const w=ROTORS[k].w,a=[];for(let i=0;i<26;i++)a[w.charCodeAt(i)-65]=i;INV[k]=a;}
+const NAMES=['I','II','III','IV','V'];
+const PERMS=[];
+for(const a of NAMES)for(const b of NAMES)for(const c of NAMES)
+  if(a!==b&&b!==c&&a!==c)PERMS.push([a,b,c]);
+let E=null;
+function home(){if(!E)return;E.pos=E.home.slice();}
+function notchOf(r){return ROTORS[r].n.charCodeAt(0)-65;}
+function atNotch(i){return (E.pos[i]-E.ring[i]+26)%26===notchOf(E.rotors[i]);}
+function stepOnce(){
+  if(atNotch(1)){E.pos[1]=(E.pos[1]+1)%26;E.pos[0]=(E.pos[0]+1)%26;}
+  else if(atNotch(2)){E.pos[1]=(E.pos[1]+1)%26;}
+  E.pos[2]=(E.pos[2]+1)%26;
+}
+function run(text){
+  home();let out='',letters=0;
+  for(const raw of text){
+    const ch=raw.toUpperCase();
+    if(ch>='A'&&ch<='Z'){
+      stepOnce();letters++;
+      let c=ch.charCodeAt(0)-65;
+      c=E.plug[c];
+      for(let i=2;i>=0;i--){
+        const o=(E.pos[i]-E.ring[i]+26)%26;
+        c=(ROTORS[E.rotors[i]].w.charCodeAt((c+o)%26)-65-o+26)%26;
+      }
+      c=REFL[E.refl].charCodeAt(c)-65;
+      for(let i=0;i<3;i++){
+        const o=(E.pos[i]-E.ring[i]+26)%26;
+        c=(INV[E.rotors[i]][(c+o)%26]-o+26)%26;
+      }
+      c=E.plug[c];
+      out+=String.fromCharCode(65+c);
+    }else out+=raw;
+  }
+  home();return{out:out,letters:letters};
+}
+function posStr(a){return a.map(p=>String.fromCharCode(65+p)).join('');}
+function cfgString(){
+  return 'EN1|'+E.refl+'|'+E.rotors.join('-')+'|'+posStr(E.ring)+'|'+posStr(E.home)+'|'+
+    E.pairs.map(p=>String.fromCharCode(65+p[0])+String.fromCharCode(65+p[1])).join('-');
+}
+function setCfg(cfg){E=cfg;E.ready=true;home();paint();}
+function rollCfg(){
+  const rots=PERMS[randInt(PERMS.length)].slice(),refl=randInt(2)?'B':'C';
+  const homeS=[randInt(26),randInt(26),randInt(26)];
+  const ringS=[randInt(26),randInt(26),randInt(26)];
+  const abc='ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+  for(let i=25;i>0;i--){const j=randInt(i+1),t=abc[i];abc[i]=abc[j];abc[j]=t;}
+  const plug=[];for(let i=0;i<26;i++)plug.push(i);
+  const pairs=[];
+  for(let i=0;i<10;i++){const a=abc[2*i].charCodeAt(0)-65,b=abc[2*i+1].charCodeAt(0)-65;plug[a]=b;plug[b]=a;pairs.push([a,b]);}
+  setCfg({rotors:rots,refl:refl,ring:ringS,pos:homeS.slice(),home:homeS,plug:plug,pairs:pairs});
+}
+function applyCfg(s){
+  const parts=String(s).trim().toUpperCase().replace(/\s+/g,'').split('|');
+  let o={};
+  if(parts[0]==='EN1'){
+    if(parts.length<5||parts.length>6)throw new Error('配对码应为 EN1|反射器|转子|环|起点|接线板');
+    o.rings=parts[3];o.homes=parts[4];o.plugTxt=parts[5]||'';
+  }else if(parts[0]==='MG1'){
+    if(parts.length!==5)throw new Error('旧配对码应为 MG1|反射器|转子|起点|接线板 五段');
+    o.rings='AAA';o.homes=parts[3];o.plugTxt=parts[4]||'';
+  }else throw new Error('不认识的配对码，应以 EN1| 开头');
+  if(!REFL[parts[1]])throw new Error('反射器只认 B 或 C');
+  const rots=parts[2].split('-');
+  if(rots.length!==3||rots.some(r=>!ROTORS[r])||new Set(rots).size!==3)throw new Error('转子要从 I–V 里挑三个，如 IV-II-I');
+  if(!/^[A-Z]{3}$/.test(o.rings))throw new Error('环设置要三个字母，如 BDF');
+  if(!/^[A-Z]{3}$/.test(o.homes))throw new Error('起始位置要三个字母，如 XYZ');
+  const ringS=[...o.rings].map(c=>c.charCodeAt(0)-65);
+  const homeS=[...o.homes].map(c=>c.charCodeAt(0)-65);
+  const plug=[];for(let i=0;i<26;i++)plug.push(i);
+  const pairs=[];
+  if(o.plugTxt)for(const pr of o.plugTxt.split('-')){
+    if(!/^[A-Z]{2}$/.test(pr))throw new Error('接线对要是两个字母，如 AF');
+    const a=pr.charCodeAt(0)-65,b=pr.charCodeAt(1)-65;
+    if(a===b)throw new Error('接线对不能是同一个字母');
+    if(plug[a]!==a||plug[b]!==b)throw new Error('有字母被接了两次：'+pr);
+    plug[a]=b;plug[b]=a;pairs.push([a,b]);
+  }
+  setCfg({rotors:rots,refl:parts[1],ring:ringS,pos:homeS.slice(),home:homeS,plug:plug,pairs:pairs});
+}
+function paint(){
+  if(!E)return;
+  for(let i=0;i<3;i++){
+    $('emgW'+i).textContent=String.fromCharCode(65+E.pos[i]);
+    const ri=$('emgR'+i);if(ri&&ri.value!==undefined)ri.value=String.fromCharCode(65+E.ring[i]);
+  }
+  $('emgCfgTxt').innerHTML=esc(E.rotors.join('–'))+' · 反射器 '+E.refl+'<br>环 '+posStr(E.ring)+' · 起点 '+posStr(E.home)+' · 接线 '+E.pairs.length+' 对';
+  const b=$('emgBadge');b.textContent='配置就绪';b.className='tstat ok';
+}
+function setRing(i,v){
+  if(!E)return false;
+  v=String(v||'').toUpperCase();
+  if(!/^[A-Z]$/.test(v))return false;
+  E.ring[i]=v.charCodeAt(0)-65;
+  paint();return true;
+}
+for(let i=0;i<3;i++){(function(i){
+  const el=$('emgR'+i);
+  el.addEventListener('input',function(){
+    if(!E){toast('先掷一套配置，或套用好友的配置');el.value='A';return;}
+    if(!setRing(i,el.value)){el.value=String.fromCharCode(65+E.ring[i]);}
+  });
+})(i);}
+$('emgRoll').addEventListener('click',()=>{rollCfg();toast('已掷一套配置，复制配置串发给好友');});
+$('emgApply').addEventListener('click',()=>{
+  const s=$('emgCfgIn').value;
+  if(!s.trim()){toast('先粘贴配置串');return;}
+  try{applyCfg(s);$('emgCfgIn').value='';toast('配置已套用，两端从此同机');}catch(e){toast(e.message);}
+});
+$('emgCopyCfg').addEventListener('click',()=>{(E&&E.ready)?copy(cfgString()):toast('先掷一套或套用配置');});
+$('emgRun').addEventListener('click',()=>{
+  if(!E||!E.ready){toast('先掷一套配置，或套用好友的配置');return;}
+  const t=$('emgIn').value;
+  if(!t.trim()){toast('先输入明文或密文');return;}
+  const r=run(t);
+  $('emgOut').textContent=r.out||'（没有可加密的字母）';
+  $('emgStat').textContent='本封 '+r.letters+' 个字母 · 转子走满 '+r.letters+' 格 · 已自动归位，可发下一封';
+  $('emgOut').scrollTop=0;
+});
+$('emgCopyOut').addEventListener('click',()=>{const t=$('emgOut').textContent;if(!t||t==='灯板待亮'||t==='（没有可加密的字母）'){toast('还没有输出');return;}copy(t);});
+$('emgHome').addEventListener('click',()=>{if(!E){toast('还没有配置');return;}home();paint();toast('转子已归位');});
+})();
+</script><script data-tabbit-widget-diagnostics="true">
+(function(){
+  if (window.__tabbitWidgetDiagnosticsInstalled) return;
+  window.__tabbitWidgetDiagnosticsInstalled = true;
+  window.__TABBIT_WIDGET_ERRORS__ = window.__TABBIT_WIDGET_ERRORS__ || [];
+  function emit(level, args) {
+    var payload = {
+      type: "tabbit_widget_diagnostics",
+      level: level,
+      message: Array.prototype.slice.call(args || []).map(function(item) {
+        if (item && item.stack) return item.stack;
+        if (typeof item === "string") return item;
+        try { return JSON.stringify(item); } catch (_) { return String(item); }
+      }).join(" "),
+      timestamp: Date.now()
+    };
+    window.__TABBIT_WIDGET_ERRORS__.push(payload);
+    try { window.parent && window.parent.postMessage(payload, "*"); } catch (_) {}
+  }
+  var originalError = console.error;
+  console.error = function() {
+    emit("error", arguments);
+    return originalError && originalError.apply(console, arguments);
+  };
+  window.addEventListener("error", function(event) {
+    emit("error", [event.message || "Script error", event.filename || "", event.lineno || ""]);
+  });
+  window.addEventListener("unhandledrejection", function(event) {
+    emit("unhandledrejection", [event.reason || "Unhandled promise rejection"]);
+  });
+})();
+</script><div
+  id="tabbit-artifact-watermark"
+  style="position: fixed !important; left: 50% !important; bottom: 12px !important; transform: translateX(-50%) !important; z-index: 2147483647 !important; margin: 0 !important; padding: 0 !important; width: max-content !important; max-width: calc(100vw - 24px) !important; font: 12px/1.4 -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important; color: inherit !important; text-align: center !important; white-space: nowrap !important;"
+>
+  <a
+    href="https://www.tabbit.com?source=generated_with_tabbit"
+    target="_blank"
+    rel="noopener noreferrer"
+    aria-label="Generated with Tabbit. Open Tabbit website"
+    style="display: inline-flex !important; align-items: center !important; gap: 4px !important; color: inherit !important; text-decoration: none !important; cursor: pointer !important;"
+  >
+    <span>Generated with</span>
+    <strong style="color: #EF812F !important;">Tabbit.</strong>
+    <svg
+      aria-hidden="true"
+      width="12"
+      height="12"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="#EF812F"
+      stroke-width="2.5"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      style="display: inline-block !important; flex: 0 0 auto !important; width: 12px !important; height: 12px !important; color: #EF812F !important;"
+    >
+      <path d="M7 17L17 7"></path>
+      <path d="M9 7h8v8"></path>
+    </svg>
+  </a>
+</div>
+<script id="tabbit-artifact-analytics">
+(() => {
+  const taskId = "823673bc-d611-4580-92a4-77bfa5ef0d6b";
+  if (!taskId || window.__tabbitArtifactViewTracked) return;
+  window.__tabbitArtifactViewTracked = true;
+  fetch("https://web.tabbit.com/api/v0/analytics/task/823673bc-d611-4580-92a4-77bfa5ef0d6b/view", {
+    method: "POST",
+    keepalive: true,
+    credentials: "omit"
+  }).catch(() => {});
+})();
+</script>
+</body>
+</html>
